@@ -30,25 +30,16 @@ const server = createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: 'http://localhost:3000'
+        origin: 'http://localhost:3000',
+        methods: ['GET', 'POST'], // Specify the allowed HTTP methods
+        credentials: true // Allow credentials
     }
-})
+});
 
 
+// const allowedOrigins = ['http://localhost:3000'];
+app.use(cors());
 
-const allowedOrigins = ['http://localhost:3000']; // Add more origins as needed
-app.use(
-    cors({
-        origin: function (origin, callback) {
-            if (!origin || allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error('Not allowed by CORS'));
-            }
-        },
-        credentials: true, // Allow credentials
-    })
-);
 
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -69,7 +60,7 @@ io.on('connection', (socket) => {
     })
 
 
-    socket.on('uploaded',(data)=>{
+    socket.on('uploaded', (data) => {
         let sender = data.from;
         let receiver = data.to;
 
@@ -81,13 +72,13 @@ io.on('connection', (socket) => {
             message: 'New file shared'
         })
     })
-})       
+})
 app.use('/auth', authRoutes);
 app.use('/file', fileShareRoutes);
 
 
 app.get('/', (req, res) => {
-    res.send('API is running....'); 
+    res.send('API is running....');
 });
 
 
