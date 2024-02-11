@@ -38,7 +38,11 @@ const io = new Server(server, {
 
 
 // const allowedOrigins = ['http://localhost:3000'];
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST'],
+    credentials: true // Allow credentials
+  }));
 
 
 app.use(bodyParser.json());
