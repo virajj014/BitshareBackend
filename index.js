@@ -43,19 +43,16 @@ app.use(cors({
     methods: ['GET', 'POST'],
     credentials: true // Allow credentials
 }));
-app.use(session({
-    secret: 'your-secret',
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-        secure: false, // Set to true for HTTPS environments
-        httpOnly: true,
-        sameSite: 'lax'
-    }
-}));
+
 
 app.use(bodyParser.json());
-app.use(cookieParser());
+app.use(cookieParser({
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+    signed: true,
+}));
 app.use('/public', express.static('public'));
 
 

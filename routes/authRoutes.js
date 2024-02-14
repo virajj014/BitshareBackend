@@ -185,8 +185,16 @@ router.post('/login', async (req, res, next) => {
         const refreshToken = jwt.sign({ userId: user._id }, process.env.JWT_REFRESH_SECRET_KEY, { expiresIn: '50m' });
 
 
-        res.cookie('authToken', authToken, { httpOnly: true });
-        res.cookie('refreshToken', refreshToken, { httpOnly: true });
+        res.cookie('authToken', authToken, { 
+            sameSite: 'none',
+            httpOnly: true,
+            secure: true
+         });
+        res.cookie('refreshToken', refreshToken, { 
+            sameSite: 'none',
+            httpOnly: true,
+            secure: true
+         });
         return responseFunction(res, 200, 'Logged in successfully', {
             authToken: authToken,
             refreshToken: refreshToken
