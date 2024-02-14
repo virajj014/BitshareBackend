@@ -12,7 +12,7 @@ const authRoutes = require('./routes/authRoutes')
 const fileShareRoutes = require('./routes/fileShareRoutes');
 const dotenv = require('dotenv');
 const { createServer } = require('node:http');
-
+const session = require('express-session');
 dotenv.config();
 
 
@@ -42,8 +42,17 @@ app.use(cors({
     origin: 'http://localhost:3000',
     methods: ['GET', 'POST'],
     credentials: true // Allow credentials
-  }));
-
+}));
+app.use(session({
+    secret: 'your-secret',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        secure: false, // Set to true for HTTPS environments
+        httpOnly: true,
+        sameSite: 'lax'
+    }
+}));
 
 app.use(bodyParser.json());
 app.use(cookieParser());
