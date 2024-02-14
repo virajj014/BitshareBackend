@@ -39,28 +39,6 @@ async function mailer(recieveremail, code) {
 }
 
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, './public');
-    },
-    filename: (req, file, cb) => {
-        let fileType = file.mimetype.split('/')[1];
-        console.log(req.headers.filename);
-        cb(null, `${Date.now()}.${fileType}`);
-    }
-})
-
-const upload = multer({ storage: storage });
-
-
-const fileUploadFunction = (req, res, next) => {
-    upload.single('clientfile')(req, res, (err) => {
-        if (err) {
-            return responseFunction(res, 400, 'File upload failed', null, false);
-        }
-        next();
-    })
-}
 
 router.get('/test', (req, res) => {
     res.send('Auth routes are working!');
@@ -95,55 +73,24 @@ router.post('/sendotp', async (req, res) => {
 })
 
 
-router.post('/register', fileUploadFunction, async (req, res, next) => {
+router.post('/register', async (req, res, next) => {
     // console.log(req.file)
 
     try {
-        const { name, email, password, otp } = req.body;
+        const { name, email, password, otp, profilePic } = req.body;
         let user = await User.findOne({ email: email });
         let verificationQueue = await Verification.findOne({ email: email });
         if (user) {
-            if (req.file && req.file.path) {
-                fs.unlink(req.file.path, (err) => {
-                    if (err) {
-                        console.log(err);
-                    }
-                    else {
-                        console.log('File deleted successfully');
-                    }
-                })
-            }
+            responseFunction(res, 400, 'User already exists', null, false);
         }
 
         if (!verificationQueue) {
-            if (req.file && req.file.path) {
-                fs.unlink(req.file.path, (err) => {
-                    if (err) {
-                        console.log(err);
-                    }
-                    else {
-                        console.log('File deleted successfully');
-                    }
-                })
-            }
             return responseFunction(res, 400, 'Please send otp first', null, false);
         }
 
 
         const isMatch = await bcrypt.compare(otp, verificationQueue.code);
         if (!isMatch) {
-
-            if (req.file && req.file.path) {
-                fs.unlink(req.file.path, (err) => {
-                    if (err) {
-                        console.error('Error deleting file:', err);
-                    } else {
-                        console.log('File deleted successfully');
-                    }
-                });
-            }
-
-
             return responseFunction(res, 400, 'Invalid OTP', null, false);
         }
 
@@ -151,7 +98,7 @@ router.post('/register', fileUploadFunction, async (req, res, next) => {
             name: name,
             email: email,
             password: password,
-            profilePic: req.file.path
+            profilePic: profilePic
         });
         await user.save();
         await Verification.deleteOne({ email: email });
@@ -185,16 +132,16 @@ router.post('/login', async (req, res, next) => {
         const refreshToken = jwt.sign({ userId: user._id }, process.env.JWT_REFRESH_SECRET_KEY, { expiresIn: '50m' });
 
 
-        res.cookie('authToken', authToken, { 
+        res.cookie('authToken', authToken, {
             sameSite: 'none',
             httpOnly: true,
             secure: true
-         });
-        res.cookie('refreshToken', refreshToken, { 
+        });
+        res.cookie('refreshToken', refreshToken, {
             sameSite: 'none',
             httpOnly: true,
             secure: true
-         });
+        });
         return responseFunction(res, 200, 'Logged in successfully', {
             authToken: authToken,
             refreshToken: refreshToken
