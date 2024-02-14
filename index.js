@@ -32,7 +32,7 @@ const io = new Server(server, {
     cors: {
         origin: 'http://localhost:3000',
         methods: ['GET', 'POST'], // Specify the allowed HTTP methods
-        credentials: true // Allow credentials
+        credentials: true, // Allow credentials
     }
 });
 
@@ -57,32 +57,32 @@ app.use('/public', express.static('public'));
 
 
 
-io.on('connection', (socket) => {
-    console.log('new connection', socket.id);
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
-    })
+// io.on('connection', (socket) => {
+//     console.log('new connection', socket.id);
+//     socket.on('disconnect', () => {
+//         console.log('user disconnected');
+//     })
 
 
-    socket.on('joinself', (data) => {
-        console.log('joining self', data);
-        socket.join(data);
-    })
+//     socket.on('joinself', (data) => {
+//         console.log('joining self', data);
+//         socket.join(data);
+//     })
 
 
-    socket.on('uploaded', (data) => {
-        let sender = data.from;
-        let receiver = data.to;
+//     socket.on('uploaded', (data) => {
+//         let sender = data.from;
+//         let receiver = data.to;
 
-        console.log('uploaded', data);
+//         console.log('uploaded', data);
 
 
-        socket.to(receiver).emit('notify', {
-            from: sender,
-            message: 'New file shared'
-        })
-    })
-})
+//         socket.to(receiver).emit('notify', {
+//             from: sender,
+//             message: 'New file shared'
+//         })
+//     })
+// })
 app.use('/auth', authRoutes);
 app.use('/file', fileShareRoutes);
 
