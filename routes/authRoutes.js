@@ -16,17 +16,17 @@ async function mailer(recieveremail, code) {
     let transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
         port: 587,
-        secure: false, 
+        secure: false,
         requireTLS: true,
         auth: {
-            user : "virajj014@gmail.com",
-            pass : "kakw vytc cmkr awhq"
+            user: "virajj014@gmail.com",
+            pass: "kakw vytc cmkr awhq"
         }
     })
 
-    let info =  await transporter.sendMail({
-        from : "Team BitS",
-        to : recieveremail,
+    let info = await transporter.sendMail({
+        from: "Team BitS",
+        to: recieveremail,
         subject: "OTP for verification",
         text: "Your OTP is " + code,
         html: "<b>Your OTP is " + code + "</b>",
@@ -95,7 +95,7 @@ router.post('/sendotp', async (req, res) => {
 })
 
 
-router.post('/register', fileUploadFunction, async (req,res, next)=>{
+router.post('/register', fileUploadFunction, async (req, res, next) => {
     // console.log(req.file)
 
     try {
@@ -158,7 +158,7 @@ router.post('/register', fileUploadFunction, async (req,res, next)=>{
         return responseFunction(res, 200, 'registered successfully', null, true);
 
     }
-    catch (err){
+    catch (err) {
         console.log(err);
         return responseFunction(res, 500, 'Internal server error', null, false);
     }
@@ -181,11 +181,11 @@ router.post('/login', async (req, res, next) => {
         }
 
 
-        const authToken = jwt.sign({userId: user._id}, process.env.JWT_SECRET_KEY,{expiresIn : '10m'})
+        const authToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: '10m' })
         const refreshToken = jwt.sign({ userId: user._id }, process.env.JWT_REFRESH_SECRET_KEY, { expiresIn: '50m' });
 
 
-        res.cookie('authToken', authToken , {httpOnly : true});
+        res.cookie('authToken', authToken, { httpOnly: true });
         res.cookie('refreshToken', refreshToken, { httpOnly: true });
         return responseFunction(res, 200, 'Logged in successfully', {
             authToken: authToken,
@@ -215,7 +215,7 @@ router.post('/logout', authTokenHandler, async (req, res, next) => {
 })
 
 
-router.get('/getuser', authTokenHandler , async (req, res, next) =>{
+router.get('/getuser', authTokenHandler, async (req, res, next) => {
     try {
         const user = await User.findById(req.userId);
         if (!user) {
@@ -224,7 +224,7 @@ router.get('/getuser', authTokenHandler , async (req, res, next) =>{
         return responseFunction(res, 200, 'User found', user, true);
 
     }
-    catch(err){
+    catch (err) {
         next(err);
     }
 })

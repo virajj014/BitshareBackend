@@ -129,8 +129,13 @@ router.get('/generatepostobjecturl', authTokenHandler, async (req, res, next) =>
 
 })
 router.post('/sharefile', authTokenHandler, async (req, res, next) => {
+
     try {
-        const { receiveremail, filekey , filename,fileType} = req.body;
+        const { receiveremail, filekey , filename , fileType} = req.body;
+
+        if (!fileType) {
+            return responseFunction(res, 400, 'File type is required', null, false);
+        }
         // console.log(req.body);
         let senderuser = await User.findOne({ _id: req.userId });
         let recieveruser = await User.findOne({ email: receiveremail });
@@ -179,14 +184,30 @@ router.post('/sharefile', authTokenHandler, async (req, res, next) => {
             return responseFunction(res, 400, 'Reciever email cannot be same as sender', null, false);
         }
 
+        // console.log(
+        //     {
+        //         senderemail: senderuser.email,
+        //         receiveremail: receiveremail,
+        //         // fileurl: req.file.path,
+        //         fileType:fileType,
+        //         fileurl: filekey,
+        //         filename: filename ? filename : new Date().toLocaleDateString(),
+        //         sharedAt: Date.now(),
+                
+        //     }
+        // )
+        // console.log(senderuser)
+        // console.log(recieveruser)
+
         senderuser.files.push({
             senderemail: senderuser.email,
             receiveremail: receiveremail,
             // fileurl: req.file.path,
+            fileType:fileType,
             fileurl: filekey,
             filename: filename ? filename : new Date().toLocaleDateString(),
             sharedAt: Date.now(),
-            fileType:fileType
+            
         })
 
         recieveruser.files.push({
